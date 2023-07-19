@@ -25,20 +25,23 @@ app.get('/api/shopify/authorize',async(req,res)=>{
 
 //handiling the redirect after authorizing
 app.get('/api/shopify/redirect',async(req,res)=>{
-    let shopify_auth=await redirect(req.query.code,req.query.shop);
-    //console.log(shopify_auth.data.access_token);
-    // console.log(req.query.shop);
+    console.log("loading..");
+    let shopify_auth=await redirect(req.query);
+    if(shopify_auth===null){
+        return res.json({
+            message: "Data is not accessible..."
+        })
+    }
     process.env.shopify_token=await shopify_auth.data.access_token;
     process.env.shop=req.query.shop;
   
     return res.json({
-        message: 'Authorization Done!!',
-         access_token:shopify_auth.data.access_token
+        message: 'Authorization Done!!'
     });
 })
 
 //add products to shopify store
-app.post('/api/shopify/products', async(req,res)=>{
+app.post('/api/shopify/products',multiParty(), async(req,res)=>{
     return res.json(await addProducts(req.body));
 })
 
